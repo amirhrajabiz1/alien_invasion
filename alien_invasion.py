@@ -175,6 +175,8 @@ class AlienInvasion:
         if len(self.bullets) < self.settings.bullets_allowed:
             new_bullet = Bullet(self)
             self.bullets.add(new_bullet)
+            # Play sound of the bullet.
+            new_bullet.bullet_sound.play()
 
     def _update_bullets(self):
         """Update position of bullets and get rid of old bullets."""
@@ -197,6 +199,8 @@ class AlienInvasion:
         if collisions:
             for aliens in collisions.values():
                 self.stats.score += self.settings.alien_points * len(aliens)
+                # play the sound of explosion(hit).
+                self.aliens.sprites()[0].hit_sound.play()
             self.sb.prep_score()
             self.sb.check_high_score()
 
@@ -303,6 +307,7 @@ class AlienInvasion:
 
         # Draw the score information.
         self.sb.show_score()
+
 
         # Draw the play button if the game is inactive.
         if not self.game_active:

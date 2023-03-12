@@ -1,5 +1,6 @@
 import pygame
 from pygame.sprite import Sprite
+from pygame import mixer
 
 class Alien(Sprite):
     """A class to represent a single alien in the fleet."""
@@ -20,6 +21,13 @@ class Alien(Sprite):
 
         # Store the alien's exact horizontal position.
         self.x = float(self.rect.x)
+
+        # Initiate mixer and Load The sound of hit
+        mixer.init()
+        self.hit_sound = mixer.Sound("sounds/explosion.wav")
+
+
+
 
     def check_edges(self):
         """Return True if alien is at edge of screen."""

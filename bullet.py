@@ -1,5 +1,6 @@
 import pygame
 from pygame.sprite import Sprite
+from pygame import mixer
 
 class Bullet(Sprite):
     """A class to manage bullets fired from the ship."""
@@ -18,6 +19,12 @@ class Bullet(Sprite):
 
         # Store the bullet's position as a float.
         self.y = float(self.rect.y)
+
+        # Instantiate mixer
+        mixer.init()
+
+        # Load audio file and set the volume
+        self.bullet_sound = mixer.Sound("sounds/alienshoot1.wav")
 
     def update(self):
         """Move the bullet up the screen."""
