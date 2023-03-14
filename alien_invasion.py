@@ -11,6 +11,7 @@ from button import Button
 from ship import Ship
 from bullet import Bullet
 from alien import Alien
+from explosion import Explosion
 
 
 class AlienInvasion:
@@ -54,6 +55,9 @@ class AlienInvasion:
             "Hard", (255, 0, 0), (224, 224, 224), 3
         )
 
+        # Create an sprite group to hold the Explosion objects.
+        self.explosions = pygame.sprite.Group()
+
     def _make_level_button(self, msg, color, text_color, position):
         """make a level button with this attributes."""
         # Make a button
@@ -67,12 +71,14 @@ class AlienInvasion:
     def run_game(self):
         """Start the main loop for the game."""
         while True:
-            self._check_events()
+            self._check_events() 
 
             if self.game_active:
                 self.ship.update()
                 self._update_bullets()
                 self._update_aliens()
+                # We update all explosions in the "explosions".
+                self.explosions.update()
 
             self._update_screen()
             self.clock.tick(self.settings.frame_rate)
@@ -172,7 +178,7 @@ class AlienInvasion:
 
     def _fire_bullet(self):
         """Create a new bullet and add it to the bullets group."""
-        if len(self.bullets) < self.settings.bullets_allowed:
+        if len(self.bullets) < self.settings.bullets_allowed and self.game_active:
             new_bullet = Bullet(self)
             self.bullets.add(new_bullet)
             # Play sound of the bullet.
@@ -199,14 +205,29 @@ class AlienInvasion:
         if collisions:
             for aliens in collisions.values():
                 self.stats.score += self.settings.alien_points * len(aliens)
-                # play the sound of explosion(hit).
-                self.aliens.sprites()[0].hit_sound.play()
+
+                # animation and sound of Explosion
+                self.explosion_animation_and_sound(aliens)
+
+
             self.sb.prep_score()
             self.sb.check_high_score()
 
         if not self.aliens:
             self._start_new_level()
     
+    def explosion_animation_and_sound(self, aliens):
+        """
+        In this method we Initiate an explosion instance for each alien
+        that are collide with a bullet and then add it to the explosions sprite.
+        We also play the sound of collide.
+        """
+        for alien in aliens:
+            explosion = Explosion(self, alien.rect.center)
+            self.explosions.add(explosion)
+            alien.hit_sound.play()
+
+
     def _start_new_level(self):
         """Start a new level if there are no aliens in the screen."""
         # Destroy existing bullets and create new fleet.
@@ -263,7 +284,7 @@ class AlienInvasion:
         """Create the fleet of aliens."""
         # Create an alien and keep adding aliens until there's no room left.
         # Spacing between aliens is one alien width and one alien height.
-        alien = Alien(self)
+        alien = Alien(self, self.bullets)
         alien_width, alien_height = alien.rect.size
 
         current_x, current_y = alien_width, alien_height
@@ -278,7 +299,7 @@ class AlienInvasion:
 
     def _create_alien(self, x_position, y_position):
         """Create an alien and place it in the fleet."""
-        new_alien = Alien(self)
+        new_alien = Alien(self, self.bullets)
         new_alien.x = x_position
         new_alien.rect.x = x_position
         new_alien.rect.y = y_position
@@ -304,6 +325,8 @@ class AlienInvasion:
             bullet.draw_bullet()
         self.ship.blitme()
         self.aliens.draw(self.screen)
+        self.explosions.draw(self.screen)
+
 
         # Draw the score information.
         self.sb.show_score()

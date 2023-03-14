@@ -5,11 +5,12 @@ from pygame import mixer
 class Alien(Sprite):
     """A class to represent a single alien in the fleet."""
 
-    def __init__(self, ai_game):
+    def __init__(self, ai_game, bullets):
         """Initialize the alien and set its starting position."""
         super().__init__()
         self.screen = ai_game.screen
         self.settings = ai_game.settings
+        self.bullets = bullets
 
         # Load the alien image and set its rect attribure.
         self.image = pygame.image.load("images/alien.bmp")
@@ -27,8 +28,6 @@ class Alien(Sprite):
         self.hit_sound = mixer.Sound("sounds/explosion.wav")
 
 
-
-
     def check_edges(self):
         """Return True if alien is at edge of screen."""
         screen_rect = self.screen.get_rect()
@@ -38,3 +37,5 @@ class Alien(Sprite):
         """Move the alien to the right and left."""
         self.x += self.settings.alien_speed * self.settings.fleet_direction
         self.rect.x = self.x
+
+

@@ -27,6 +27,9 @@ class Settings:
         # How quickly the alien point values increase
         self.score_scale = 1.5
 
+        # Explosion animation speed
+        self.explosion_long = 20
+
         self.initialize_dynamic_settings()
 
     def initialize_dynamic_settings(self):
