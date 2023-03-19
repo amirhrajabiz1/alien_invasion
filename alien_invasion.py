@@ -3,6 +3,7 @@ from time import sleep
 from pathlib import Path
 
 import pygame
+from pygame import mixer
 
 from settings import Settings
 from game_stats import GameStats
@@ -12,6 +13,7 @@ from ship import Ship
 from bullet import Bullet
 from alien import Alien
 from explosion import Explosion
+from ship_explosion import Explosion as Ship_explosion
 
 
 class AlienInvasion:
@@ -58,6 +60,11 @@ class AlienInvasion:
         # Create an sprite group to hold the Explosion objects.
         self.explosions = pygame.sprite.Group()
 
+        # Create an ship_explosion instance.
+        self.ship_explosion = Ship_explosion(
+            self, self.ship.rect.centerx, self.ship.rect.centery
+        )
+
     def _make_level_button(self, msg, color, text_color, position):
         """make a level button with this attributes."""
         # Make a button
@@ -71,14 +78,20 @@ class AlienInvasion:
     def run_game(self):
         """Start the main loop for the game."""
         while True:
-            self._check_events() 
+            self._check_events()
 
             if self.game_active:
                 self.ship.update()
                 self._update_bullets()
                 self._update_aliens()
+
                 # We update all explosions in the "explosions".
                 self.explosions.update()
+
+                # Update the ship_explosion.
+                self.ship_explosion.update(
+                    self.ship.rect.centerx, self.ship.rect.centery
+                )
 
             self._update_screen()
             self.clock.tick(self.settings.frame_rate)
@@ -209,13 +222,12 @@ class AlienInvasion:
                 # animation and sound of Explosion
                 self.explosion_animation_and_sound(aliens)
 
-
             self.sb.prep_score()
             self.sb.check_high_score()
 
         if not self.aliens:
             self._start_new_level()
-    
+
     def explosion_animation_and_sound(self, aliens):
         """
         In this method we Initiate an explosion instance for each alien
@@ -227,7 +239,6 @@ class AlienInvasion:
             self.explosions.add(explosion)
             alien.hit_sound.play()
 
-
     def _start_new_level(self):
         """Start a new level if there are no aliens in the screen."""
         # Destroy existing bullets and create new fleet.
@@ -238,6 +249,17 @@ class AlienInvasion:
         # Increase level.
         self.stats.level += 1
         self.sb.prep_level()
+
+        # Play next_level sounds.
+        self._play_next_level_sounds()
+
+    def _play_next_level_sounds(self):
+        """play sounds when player goes next level and sleep for playing audio."""
+        self.next_level_sound = mixer.Sound(
+            self.ship._choose_a_random_sound_file("sounds/next_level_sounds")
+        )
+        self.next_level_sound.play()
+        sleep(self.next_level_sound.get_length())
 
     def _update_aliens(self):
         """Check if the fleet is at an edge, then update position."""
@@ -266,8 +288,9 @@ class AlienInvasion:
             self._create_fleet()
             self.ship.center_ship()
 
-            # Pause.
-            sleep(0.5)
+            # Play the sound and pause.
+            self.ship_sound_length = self.ship.play_sound()
+            sleep(self.ship_sound_length)
         else:
             self.game_active = False
             pygame.mouse.set_visible(True)
@@ -326,11 +349,10 @@ class AlienInvasion:
         self.ship.blitme()
         self.aliens.draw(self.screen)
         self.explosions.draw(self.screen)
-
+        self.ship_explosion.blitme()
 
         # Draw the score information.
         self.sb.show_score()
-
 
         # Draw the play button if the game is inactive.
         if not self.game_active:
@@ -346,7 +368,6 @@ class AlienInvasion:
         path = Path("high_score")
         content = str(self.stats.high_score)
         path.write_text(content)
-
 
 
 if __name__ == "__main__":
