@@ -13,7 +13,7 @@ class Alien(Sprite):
         self.bullets = bullets
 
         # Load the alien image and set its rect attribure.
-        self.image = pygame.image.load("images/alien.bmp")
+        self.image = pygame.image.load(ai_game.resource_path("assets/images/alien.bmp"))
         self.rect = self.image.get_rect()
 
         # Start each new alien newr the top left of the screen.
@@ -25,7 +25,7 @@ class Alien(Sprite):
 
         # Initiate mixer and Load The sound of hit
         mixer.init()
-        self.hit_sound = mixer.Sound("sounds/explosion.wav")
+        self.hit_sound = mixer.Sound(ai_game.resource_path("assets/sounds/explosion.wav"))
 
 
     def check_edges(self):

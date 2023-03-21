@@ -16,7 +16,7 @@ class Ship(Sprite):
         self.screen_rect = ai_game.screen.get_rect()
 
         # Load the ship image and get its rect.
-        self.image = pygame.image.load("images/ship.bmp")
+        self.image = pygame.image.load(ai_game.resource_path("assets/images/ship.bmp"))
         self.rect = self.image.get_rect()
 
         # Start each new ship at the bottom center of the screen.
@@ -54,11 +54,14 @@ class Ship(Sprite):
 
     def play_sound(self):
         """Play a sound when the ship collide with enemy and return sound length."""
-        self.ship_sound = mixer.Sound(self._choose_a_random_sound_file("sounds/ship_hit_sounds"))
+        self.ship_sound = mixer.Sound(
+            self._choose_a_random_sound_file(
+                self.ai_game.resource_path("assets/sounds/ship_hit_sounds")
+            )
+        )
         self.ship_sound.play()
         # Return the time duration of the sound.
         return self.ship_sound.get_length()
-
 
     def _choose_a_random_sound_file(self, sound_dir):
         """This method choose a file randomly from a directory."""
@@ -67,5 +70,3 @@ class Ship(Sprite):
         file_name = random.choice(files)
         full_path = os.path.join(dir_path, file_name)
         return full_path
-
-

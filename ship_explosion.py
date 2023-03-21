@@ -14,7 +14,7 @@ class Explosion:
         self.num_horizontal_small_sprites = 3
         self.num_vertical_small_sprites = 3
 
-        self.big_image = pygame.image.load("images\explosion_atlas.png")
+        self.big_image = pygame.image.load(ai_game.resource_path("assets/images/explosion_atlas.png"))
 
         # Define the size of each small sprites.
         self.width_sprite = (

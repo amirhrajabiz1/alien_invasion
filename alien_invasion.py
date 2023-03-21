@@ -1,6 +1,9 @@
 import sys
 from time import sleep
 from pathlib import Path
+import os
+import sys
+
 
 import pygame
 from pygame import mixer
@@ -64,6 +67,17 @@ class AlienInvasion:
         self.ship_explosion = Ship_explosion(
             self, self.ship.rect.centerx, self.ship.rect.centery
         )
+
+    def resource_path(self, relative_path):
+        """This method returns the path of a file base on PyInstaller is
+           running the game or not"""
+        try:
+            # PyInstaller create a temp folder and stores path in _MEIPASS
+            base_path = sys._MEIPASS
+        except Exception:
+            base_path = os.path.abspath(".")
+        
+        return os.path.join(base_path, relative_path)
 
     def _make_level_button(self, msg, color, text_color, position):
         """make a level button with this attributes."""
@@ -256,7 +270,7 @@ class AlienInvasion:
     def _play_next_level_sounds(self):
         """play sounds when player goes next level and sleep for playing audio."""
         self.next_level_sound = mixer.Sound(
-            self.ship._choose_a_random_sound_file("sounds/next_level_sounds")
+            self.ship._choose_a_random_sound_file(self.resource_path("assets/sounds/next_level_sounds"))
         )
         self.next_level_sound.play()
         sleep(self.next_level_sound.get_length())
@@ -365,10 +379,9 @@ class AlienInvasion:
 
     def _save_high_score(self):
         """Save the high score in "high_score" file before exit."""
-        path = Path("high_score")
+        path = Path(self.resource_path("assets/high_score"))
         content = str(self.stats.high_score)
         path.write_text(content)
-
 
 if __name__ == "__main__":
     # Make a game instance, and run the game.
